@@ -18,8 +18,8 @@ I don't normaly work with python, started with idea of using pipenv but didn't w
 Would like to make pipenv work at some point.
 
 TODO and TOTHINK:
-currently hiding game and showing again makes it count as new game (maybe reset game after seeing character screen)
-same with pressing ESC (darker filter makes area not recognized)
-and with long loading screen
-item hover can also cover the area checked for in-game
-check if screenshot can ignore assistant window
+- currently hiding game and showing again makes it count as new game (maybe reset game after seeing character screen)
+- same with pressing ESC (darker filter makes area not recognized)
+- and with long loading screen
+- item hover can also cover the area checked for in-game
+- check if screenshot can ignore assistant window
