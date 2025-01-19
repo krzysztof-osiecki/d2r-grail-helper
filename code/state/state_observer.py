@@ -1,6 +1,6 @@
 from state.app import State
 import logging
-import time
+from datetime import datetime
 from state.session import CURRENT_SESSION
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ def on_state_change(state : State, changed_property):
         case "in_game":
             if state.in_game:
                 CURRENT_SESSION.number_of_games += 1;
-                CURRENT_SESSION.game_start = time.time();
+                CURRENT_SESSION.game_start = datetime.now();
             else:
                 CURRENT_SESSION.game_start = None
         case "on_loading_screen":

@@ -9,6 +9,7 @@ from ocr.ocr import get_text_from_image
 from state.session import CURRENT_SESSION
 from initialization.setup import ITEM_LIBRARY
 import logging
+from sound.play import play_item_search_started, play_item_found, play_item_not_found
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ screenshot_loop_counter = 0
 screenshot_max_count = 10
 
 def register_item():
+    play_item_search_started()
     global screenshot_loop_counter, screenshot_max_count
     logger.debug("taking screenshot for item search")
     screenshot = pyautogui.screenshot()
@@ -34,8 +36,10 @@ def register_item():
                 for _, row in ITEM_LIBRARY[matching_rows].iterrows():
                     CURRENT_SESSION.items_saved.append(row)
                     CURRENT_SESSION.notify_item_change()
+                    play_item_found()
                 logger.warning(f"Found item: {item}")
-                break;
+                return
+    play_item_not_found()
 
 
 

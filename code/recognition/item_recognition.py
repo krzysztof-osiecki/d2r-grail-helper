@@ -1,6 +1,12 @@
 import cv2
 from constants.contants import DATA_PATH, RUNTIME_PATH
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
+
+CROPPED_ITEM_INDEX = 0
+MAX_CROPPED_ITEMS = 10
 
 HOVER_ITEM_IMAGE_NAME = [
     "hover_item_drop.jpg",
@@ -10,6 +16,7 @@ HOVER_ITEM_IMAGE_NAME = [
     ]
 
 def is_hovering_item(screenshot_path, show_result_image = False):
+    global CROPPED_ITEM_INDEX, MAX_CROPPED_ITEMS
     for item in HOVER_ITEM_IMAGE_NAME:
         # Load the source image and template image
         source_image = cv2.imread(screenshot_path)  # The larger image
@@ -54,10 +61,14 @@ def is_hovering_item(screenshot_path, show_result_image = False):
             top_left = (locations[1][0], locations[0][0])  # Get top-left corner of the match
             bottom_right = (top_left[0] + gray_template.shape[1], top_left[1] + gray_template.shape[0])
 
+            # extend the box a lot in the up direction as some items have very long descriptions
+            # also a bit to the left and right, as the part we search for is in the middle but not full width
             top_left_extend = (locations[1][0] - 150, locations[0][0] - 1000) 
             bottom_right_extend  = (top_left[0] + gray_template.shape[1] + 150, top_left[1] + gray_template.shape[0])
+
             cropped_region = gray_source[max(top_left_extend[1],0):max(bottom_right_extend[1],0), top_left_extend[0]:bottom_right_extend[0]]
-            output_path = f"{RUNTIME_PATH}items/cropped_item.jpg"
+            output_path = f"{RUNTIME_PATH}items/cropped_item_{CROPPED_ITEM_INDEX}.jpg"
+            CROPPED_ITEM_INDEX = (CROPPED_ITEM_INDEX + 1) % MAX_CROPPED_ITEMS
             cv2.imwrite(output_path, cropped_region)
             cv2.rectangle(source_image, top_left_extend, bottom_right_extend, (255, 255, 0), 2)
 
@@ -69,4 +80,4 @@ def is_hovering_item(screenshot_path, show_result_image = False):
 
             return True, output_path
         else:
-            print(f"Unable to find exactly one match with item {item}.")
+            logger.info(f"Unable to find exactly one match with item {item}.")

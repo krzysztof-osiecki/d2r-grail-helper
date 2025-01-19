@@ -1,4 +1,4 @@
-import time
+from datetime import datetime
 from dataclasses import dataclass, field
 from typing import List
 from pandas import Series
@@ -6,8 +6,8 @@ from pandas import Series
 @dataclass
 class Session():
     number_of_games: int = 0
-    session_start: float = time.time()
-    game_start: float = None
+    session_start: datetime = datetime.now()
+    game_start: datetime = None
     items_saved: List[Series] = field(default_factory=list, repr=False)
     seconds_in_game: int = 0
     seconds_out_of_game: int = 0

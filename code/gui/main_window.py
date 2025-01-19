@@ -1,9 +1,11 @@
-from PySide6.QtWidgets import QWidget, QGridLayout, QMainWindow, QLabel, QTabWidget, QVBoxLayout, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import QWidget, QGridLayout, QMainWindow, QLabel, QTabWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QApplication
 from PySide6.QtCore import Qt, QTimer, QPoint
 import logging
 import time
+from datetime import datetime, timedelta
 from state.app import State
 from state.session import CURRENT_SESSION
+from gui.css import get_application_stylesheet
 logger = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
@@ -15,8 +17,11 @@ class MainWindow(QMainWindow):
         CURRENT_SESSION.subscribe_item_change(self.update_items_table)
         # Set window properties
         self.setWindowTitle("D2R Assistant")
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint | Qt.Window)
-        # self.setAttribute(Qt.WA_TranslucentBackground) doesnt work for now
+
+        self.setStyleSheet(get_application_stylesheet())
         
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget) 
@@ -49,6 +54,16 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(main_layout)
         self.resize(300, 300)
 
+        # Get the screen geometry
+        screen_geometry = QApplication.primaryScreen().availableGeometry()
+
+        # Calculate the bottom-left corner position
+        x_position = screen_geometry.left()  # Left edge of the screen
+        y_position = screen_geometry.bottom() - self.height()  # Bottom edge minus window height
+
+        # Move the window to the bottom-left corner
+        self.move(x_position, y_position)
+
     def items_tab_layout(self):
         grid_layout = QGridLayout(self)
         # Create the table widget
@@ -77,16 +92,27 @@ class MainWindow(QMainWindow):
     def main_tab_layout(self):
         grid_layout = QGridLayout(self)
 
+        self.session_start = QLabel(f"Session started {CURRENT_SESSION.session_start.strftime("%Y-%m-%d %H:%M:%S")}", self)
+        self.session_start.setAlignment(Qt.AlignCenter)  
+
         self.session_time = QLabel("Timer is starting...", self)
-        grid_layout.addWidget(self.session_time)
+        self.session_time.setAlignment(Qt.AlignCenter) 
+
 
         self.location_state = QLabel(f"{State()}", self)
         self.location_state.setAlignment(Qt.AlignCenter) 
-        grid_layout.addWidget(self.location_state)
 
-        self.session_state = QLabel(f"{CURRENT_SESSION}", self)
-        self.session_state.setAlignment(Qt.AlignCenter)  
-        grid_layout.addWidget(self.session_state)
+        self.number_of_games = QLabel(f"Games joined: 0", self)
+        self.number_of_games.setAlignment(Qt.AlignCenter)  
+            
+        self.percentage_of_time_in_game = QLabel(f"Time in-game: 0%", self)
+        self.percentage_of_time_in_game.setAlignment(Qt.AlignCenter)  
+
+        grid_layout.addWidget(self.session_start)
+        grid_layout.addWidget(self.session_time)
+        grid_layout.addWidget(self.location_state)
+        grid_layout.addWidget(self.number_of_games)
+        grid_layout.addWidget(self.percentage_of_time_in_game)
 
         return grid_layout
 
@@ -103,7 +129,7 @@ class MainWindow(QMainWindow):
             CURRENT_SESSION.seconds_out_of_game += 1
 
         # Get the current time and calculate the elapsed time
-        current_time = time.time()
+        current_time = datetime.now()
         
         # Calculate session time
         session_time = current_time - CURRENT_SESSION.session_start
@@ -114,19 +140,32 @@ class MainWindow(QMainWindow):
         if CURRENT_SESSION.game_start != None:
             game_time = current_time - CURRENT_SESSION.game_start
             gameString = self.format_time(game_time)
-            self.game_time.setText(f"Game time: {gameString}")
+            self.game_time.setText(f"Current game time: {gameString}")
         else:
             self.game_time.setText(f"Not in game")
 
-    def format_time(self, elapsed_time):
-        # Convert the float time into minutes and seconds format
-        minutes = int(elapsed_time // 60)
-        seconds = int(elapsed_time % 60)
-        return f"{minutes:02}:{seconds:02}"
+        percentage_of_time_in_game_value  = 0
+        total_time = CURRENT_SESSION.seconds_in_game+CURRENT_SESSION.seconds_out_of_game
+        if total_time > 0:
+            percentage_of_time_in_game_value = CURRENT_SESSION.seconds_in_game/(CURRENT_SESSION.seconds_in_game+CURRENT_SESSION.seconds_out_of_game)
+            
+        self.percentage_of_time_in_game.setText(f"Time in-game: {round(percentage_of_time_in_game_value * 100, 2)}")
+
+    def format_time(self, elapsed_time : timedelta):
+        hours, remainder = divmod(elapsed_time.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        if hours > 0:
+            formatted_string = f"{hours} hours, {minutes} minutes, {seconds} seconds"
+        else:
+            formatted_string = f"{minutes} minutes, {seconds} seconds"
+
+        return formatted_string
     
     def on_update_app_state(self, state : State, changed_property):
         self.location_state.setText(f"{State()}")
-        self.session_state.setText(f"{CURRENT_SESSION}")
+        self.number_of_games.setText(f"Games joined: {CURRENT_SESSION.number_of_games}")
+
 
     def mousePressEvent(self, event):
         """Start dragging when the left mouse button is pressed"""
