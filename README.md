@@ -22,3 +22,4 @@ currently hiding game and showing again makes it count as new game (maybe reset 
 same with pressing ESC (darker filter makes area not recognized)
 and with long loading screen
 item hover can also cover the area checked for in-game
+check if screenshot can ignore assistant window
