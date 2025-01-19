@@ -1,0 +1,16 @@
+# Set default behavior to automatically normalize line endings to LF
+* text=auto
+
+# Explicitly enforce LF line endings for all text files
+*.txt text eol=crlf
+
+# Ensure that all text files use LF line endings in the repository, regardless of platform
+*.py text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.sh text eol=lf
+
+# Use CRLF line endings for `.bat` and `.ps1` scripts (Windows batch files, PowerShell)
+*.bat text eol=crlf
+*.ps1 text eol=crlf
