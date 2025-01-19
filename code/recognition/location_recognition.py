@@ -15,6 +15,8 @@ CHARACTER_SCREEN_SIMILARITY_THRESHOLD = 0.9
 DEBUG_SCREEN_COUNTER = 0
 MAX_DEBUG_SCREEN_COUNT = 0
 
+# magic numbers in those functions are awful, fix them somehow
+
 def recognize_location(screenshot):
     if on_character_screen(screenshot):
         logger.debug(f"we are on the character screen")
@@ -49,7 +51,7 @@ def on_loading_screen(screenshot):
 
 
 def on_character_screen_shadowed(screenshot):
-    cropped_screenshot = screenshot.crop((0, 0, 535, screenshot.height))
+    cropped_screenshot = screenshot.crop((0, 0, 533, 973))
     referenceImage = Image.open(f"{DATA_PATH}{LEFT_COLUMN_SHADOWED_IMAGE_PATH}")
     similarity = calculate_similarity(cropped_screenshot, referenceImage)
 
@@ -59,7 +61,7 @@ def on_character_screen_shadowed(screenshot):
     return location_found
 
 def on_character_screen(screenshot):
-    cropped_screenshot = screenshot.crop((0, 0, 535, screenshot.height))
+    cropped_screenshot = screenshot.crop((0, 0, 533, 973))
     referenceImage = Image.open(f"{DATA_PATH}{LEFT_COLUMN_IMAGE_PATH}")
     similarity = calculate_similarity(cropped_screenshot, referenceImage)
 

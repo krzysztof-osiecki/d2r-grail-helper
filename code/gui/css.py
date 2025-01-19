@@ -60,7 +60,6 @@ def get_application_stylesheet():
             QScrollBar::handle:horizontal, QScrollBar::handle:vertical {
                 background-color: #555555;  /* Handle color */
                 border-radius: 6px;         /* Rounded handle */
-                min-size: 20px;             /* Minimum size of the handle */
             }
 
             QScrollBar::handle:horizontal:hover, QScrollBar::handle:vertical:hover {
