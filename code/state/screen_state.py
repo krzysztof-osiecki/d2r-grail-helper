@@ -1,9 +1,9 @@
-class State:
+class ScreenState:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(State, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super(ScreenState, cls).__new__(cls, *args, **kwargs)
             cls._instance._observers = [] 
             cls._instance._on_character_screen = False
             cls._instance._on_character_screen_with_dialog = False

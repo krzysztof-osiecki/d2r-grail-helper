@@ -2,6 +2,15 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from typing import List
 from pandas import Series
+from constants.contants import USER_PATH, DEFAULT_PROFILE
+import pandas as pd
+import os
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+LAST_SESSION_PATH = f"{USER_PATH}last_session.json"
 
 @dataclass
 class Session():
@@ -11,17 +20,93 @@ class Session():
     items_saved: List[Series] = field(default_factory=list, repr=False)
     seconds_in_game: int = 0
     seconds_out_of_game: int = 0
-    user_directory = "user_01/"
     _item_change_observers = []
 
     # should be done on append/remove from items_saved, dont see easy way to do this now except writing custom list
     def notify_item_change(self):
-        """Notify all observers of state change"""
         for callback in self._item_change_observers:
             callback(self.items_saved)
 
     def subscribe_item_change(self, callback):
         self._item_change_observers.append(callback)
 
-# todo load session from last remembered config
-CURRENT_SESSION = Session()
+    def to_dict(self):
+        return {
+            "number_of_games": self.number_of_games,
+            "session_start": self.session_start.isoformat(),  # Convert datetime to ISO string
+            "game_start": self.game_start.isoformat() if self.game_start else None,
+            "items_saved": [item["Item"] for item in self.items_saved],
+            "seconds_in_game": self.seconds_in_game,
+            "seconds_out_of_game": self.seconds_out_of_game
+        }
+    
+    @classmethod
+    def from_dict(cls, data):
+        """Convert a dictionary back into a Session object."""
+        # Deserialize datetime fields from ISO format strings
+        session_start = datetime.fromisoformat(data["session_start"])
+        game_start = datetime.fromisoformat(data["game_start"]) if data["game_start"] else None
+        from state.application_state import ApplicationState
+        item_library = ApplicationState().item_library
+        # Convert the list of dictionaries back into Series objects
+        items_saved = [item_library[item_library["Item" == item]] for item in data["items_saved"]]
+
+        # Return a new Session object with the deserialized data
+        return cls(
+            number_of_games=data["number_of_games"],
+            session_start=session_start,
+            game_start=game_start,
+            items_saved=items_saved,
+            seconds_in_game=data["seconds_in_game"],
+            seconds_out_of_game=data["seconds_out_of_game"],
+        )
+
+    def save_as_last_session(self):
+        # Open the file in write mode (it will be created if it doesn't exist)
+        with open(LAST_SESSION_PATH, "w") as file:
+            # Serialize the object to a JSON string and write to the file
+            last_session = self.to_dict()
+            from state.application_state import ApplicationState
+            last_session["profile_name"] = ApplicationState().current_profile.profile_name
+            json.dump(last_session, file, indent=4)
+
+def handle_save_session():
+    _save_items()
+
+    from state.application_state import ApplicationState
+    application_state = ApplicationState()
+    application_state.current_session.save_as_last_session();
+
+def load_last_session():
+    if not os.path.exists(LAST_SESSION_PATH):
+        logger.debug("No last session file found, returning a default session.")
+        return Session(), DEFAULT_PROFILE  # Return a default Session if the file is not found
+    try:
+        with open(LAST_SESSION_PATH, "r") as file:
+            data = json.load(file)  # Load the JSON data from the file
+            return Session.from_dict(data), data["profile_name"]  # Convert the data back into a Session object
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.warning(f"Error reading the session file: {e}. Returning a default session.")
+        return Session(), DEFAULT_PROFILE  # Return a default Session if there is an error reading the file
+    
+def _save_items():
+    # analyze if it is needed to write whole series of item as this data is in item library anyway
+    # might be more usefull if i would read some item stats or etherial state
+    from state.application_state import ApplicationState
+    application_state = ApplicationState()
+    
+    # Create DataFrame from saved items
+    df = pd.DataFrame(application_state.current_session.items_saved)
+    
+    # Define the directory and file path
+    profile_path = f"{USER_PATH}{application_state.current_profile.profile_name}/"
+    os.makedirs(profile_path, exist_ok=True)
+    saved_files_path = f"{profile_path}saved_items.csv"
+    
+    # Check if the file exists and whether it's empty
+    if os.path.exists(saved_files_path) and os.stat(saved_files_path).st_size > 0:
+        # Append to the file without writing the header
+        df.to_csv(saved_files_path, mode='a', header=False, index=False)
+    else:
+        # If the file is empty or doesn't exist, write with the header
+        df.to_csv(saved_files_path, mode='w', header=True, index=False)

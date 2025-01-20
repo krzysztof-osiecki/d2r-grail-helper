@@ -2,6 +2,9 @@ import cv2
 from constants.contants import DATA_PATH, RUNTIME_PATH
 import numpy as np
 import logging
+from ocr.ocr import get_text_from_image
+from state.application_state import ApplicationState
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +17,28 @@ HOVER_ITEM_IMAGE_NAME = [
     "hover_item_unequip.jpg"
     "hover_item_move.jpg",
     ]
+def recognize_item(screenshot_path, show_result_image = False):
+    application_state = ApplicationState()
+    item_found, item_image_path = find_item_box(screenshot_path, show_result_image)
+    if not item_found: 
+        return False
+    
+    item_text = get_text_from_image(item_image_path)
+    logger.info(f"Text from item {item_text}")
+    lines = item_text.splitlines()
+    for item in lines:
+        processed_item = preprocess_item_name(item)
+        logger.info(f"Looking for item {processed_item}")
+        matching_rows = application_state.item_library["Item"].str.contains(processed_item, case=False)
+        if len(processed_item) > 1 and matching_rows.any():
+            for _, row in application_state.item_library[matching_rows].iterrows():
+                application_state.current_session.items_saved.append(row)
+                application_state.current_session.notify_item_change()
+                logger.warning(f"Found item: {item}")
+                return True
+    return False
 
-def is_hovering_item(screenshot_path, show_result_image = False):
+def find_item_box(screenshot_path, show_result_image = False):
     global CROPPED_ITEM_INDEX, MAX_CROPPED_ITEMS
     for item in HOVER_ITEM_IMAGE_NAME:
         # Load the source image and template image
@@ -81,3 +104,15 @@ def is_hovering_item(screenshot_path, show_result_image = False):
             return True, output_path
         else:
             logger.info(f"Unable to find exactly one match with item {item}.")
+
+def preprocess_item_name(input_str):
+    # Remove everything after and including the first bracket, including the space before it
+    cleaned_str = re.sub(r'\s?\(.*\)', '', input_str)
+    
+    # Replace @ with O
+    cleaned_str = cleaned_str.replace('@', 'O')
+    
+    # Trim leading and trailing spaces
+    cleaned_str = cleaned_str.strip()
+    
+    return re.escape(cleaned_str)

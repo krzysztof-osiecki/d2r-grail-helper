@@ -1,46 +1,33 @@
-from PySide6.QtWidgets import QWidget, QGridLayout, QLineEdit, QPushButton
+from PySide6.QtWidgets import QWidget, QGridLayout, QLineEdit, QPushButton, QLabel, QVBoxLayout
 from PySide6.QtCore import Qt
-from state.session import CURRENT_SESSION
-from constants.contants import USER_PATH
-import pandas as pd
-import os
+from state.session import handle_save_session
+from state.profile import handle_save_profile
+from state.application_state import ApplicationState
 
 class SessionTab(QWidget):
     def __init__(self):
         super().__init__()
-
         grid_layout = QGridLayout(self)
-        self.text_input = QLineEdit(self)
-        self.text_input.setPlaceholderText("Enter some text here...")
-        self.text_input.setAlignment(Qt.AlignCenter)  
+        self.profile_label = QLabel("Current profile...", self)
+        self.profile_label.setFixedHeight(30)
+        self.profile_label.setAlignment(Qt.AlignCenter)  
+
+        self.profile_name_input = QLineEdit(self)
+        self.profile_name_input.setFixedHeight(30)
+        self.profile_name_input.setPlaceholderText("enter user name...")
+        self.profile_name_input.setText(ApplicationState().current_profile.profile_name)
+        self.profile_name_input.setAlignment(Qt.AlignCenter)  
 
         self.save_session_button = QPushButton("Save session")
-        self.save_session_button.clicked.connect(self.save_session)
+        self.save_session_button.clicked.connect(self.handle_save_session_button)
 
-        grid_layout.addWidget(self.text_input)
+        grid_layout.addWidget(self.profile_label)
+        grid_layout.addWidget(self.profile_name_input)
         grid_layout.addWidget(self.save_session_button)
 
         self.setLayout(grid_layout)
 
-
-    def save_session(self):
-        """
-        Save a list of pandas Series to a CSV file.
-        If the file exists, append the data; otherwise, create the file with a header.
-
-        :param series_list: List of pandas Series to save
-        :param file_path: Path to the CSV file
-        """
-        # Convert the list of Series to a DataFrame
-        df = pd.DataFrame(CURRENT_SESSION.items_saved)
-
-        os.makedirs(f"{USER_PATH}{CURRENT_SESSION.user_directory}", exist_ok=True)
-        saved_files_path = f"{USER_PATH}{CURRENT_SESSION.user_directory}saved_items.csv"
-
-         # Check if the file exists
-        if os.path.exists(saved_files_path):
-            # Append to the file without writing the header
-            df.to_csv(saved_files_path, mode='a', header=False, index=False)
-        else:
-            # Create a new file with a header
-            df.to_csv(saved_files_path, mode='w', header=True, index=False)
+    def handle_save_session_button(self):
+        ApplicationState().current_profile.profile_name = self.profile_name_input.text()
+        handle_save_session()
+        handle_save_profile()

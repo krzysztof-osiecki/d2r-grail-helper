@@ -4,10 +4,6 @@ from gui.session_tab import SessionTab
 from gui.items_tab import ItemsTab
 from gui.game_tab import GameTab
 from gui.main_tab import MainTab
-from datetime import datetime
-from state.app import State
-from utility.utility import format_time
-from state.session import CURRENT_SESSION
 from gui.css import get_application_stylesheet
 import logging
 
@@ -18,6 +14,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+
         # Set window properties
         self.setWindowTitle("D2R Assistant")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)

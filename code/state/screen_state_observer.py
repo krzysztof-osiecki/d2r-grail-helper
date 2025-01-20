@@ -1,16 +1,16 @@
-from state.app import State
+from state.screen_state import ScreenState
 import logging
 from datetime import datetime
-from state.session import CURRENT_SESSION
+from state.application_state import ApplicationState
 
 logger = logging.getLogger(__name__)
 
-def init_state_observer():
-    State().subscribe(on_state_change)
+def init_screen_state_observer():
+    ScreenState().subscribe(on_screen_state_change)
 
 
-def on_state_change(state : State, changed_property):
-    
+def on_screen_state_change(state : ScreenState, changed_property):
+    application_state = ApplicationState()
     match changed_property:
         case "on_character_screen" :
             if state.on_character_screen:
@@ -24,10 +24,10 @@ def on_state_change(state : State, changed_property):
                 logging.debug(f"Closed dialog on character screen")
         case "in_game":
             if state.in_game:
-                CURRENT_SESSION.number_of_games += 1;
-                CURRENT_SESSION.game_start = datetime.now();
+                application_state.current_session.number_of_games += 1;
+                application_state.current_session.game_start = datetime.now();
             else:
-                CURRENT_SESSION.game_start = None
+                application_state.current_session.game_start = None
         case "on_loading_screen":
             if state.on_loading_screen:
                 logging.debug(f"Showing dialog on character screen")

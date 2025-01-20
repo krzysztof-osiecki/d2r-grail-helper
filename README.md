@@ -18,6 +18,8 @@ I don't normaly work with python, started with idea of using pipenv but didn't w
 Would like to make pipenv work at some point.
 
 TODO and TOTHINK:
+- make some nice toast notifying when actions are successful
+- use them to show which item was recognized and allow user to tell if its wrong
 - currently hiding game and showing again makes it count as new game (maybe reset game after seeing character screen)
 - same with pressing ESC (darker filter makes area not recognized)
 - and with long loading screen

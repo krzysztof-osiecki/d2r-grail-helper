@@ -1,14 +1,15 @@
-from PySide6.QtWidgets import QWidget, QGridLayout, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem
-from state.session import CURRENT_SESSION
+from PySide6.QtWidgets import QWidget, QGridLayout, QTableWidget, QTableWidgetItem
+from state.application_state import ApplicationState
 
 class ItemsTab(QWidget):
     def __init__(self):
         super().__init__()
+        application_state = ApplicationState()
         grid_layout = QGridLayout(self)
         # Create the table widget
         self.items_table = QTableWidget()
-        CURRENT_SESSION.subscribe_item_change(self.update_items_table)
-        self.update_items_table(CURRENT_SESSION.items_saved)
+        application_state.current_session.subscribe_item_change(self.update_items_table)
+        self.update_items_table(application_state.current_session.items_saved)
         grid_layout.addWidget(self.items_table)
         self.setLayout(grid_layout)
 

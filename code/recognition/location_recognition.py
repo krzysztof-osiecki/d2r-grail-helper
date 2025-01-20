@@ -1,7 +1,7 @@
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import numpy as np
-from state.app import State
+from state.screen_state import ScreenState
 from constants.contants import DATA_PATH, RUNTIME_PATH
 import logging
 
@@ -36,7 +36,7 @@ def in_game(screenshot):
     referenceImage = Image.open(f"{DATA_PATH}{IN_GAME_PATH}")
     similarity = calculate_similarity(cropped_screenshot, referenceImage)
     location_found = similarity > 0.9
-    State().in_game = location_found
+    ScreenState().in_game = location_found
     logger.debug(f"on_loading_screen: similarity factor {similarity}")
     return location_found
 
@@ -45,7 +45,7 @@ def on_loading_screen(screenshot):
     referenceImage = Image.open(f"{DATA_PATH}{LOADING_SCREEN_PATH}")
     similarity = calculate_similarity(cropped_screenshot, referenceImage,)
     location_found = similarity > 0.9
-    State().on_loading_screen = location_found
+    ScreenState().on_loading_screen = location_found
     logger.debug(f"on_loading_screen: similarity factor {similarity}")
     return location_found
 
@@ -56,7 +56,7 @@ def on_character_screen_shadowed(screenshot):
     similarity = calculate_similarity(cropped_screenshot, referenceImage)
 
     location_found = similarity > 0.9
-    State().on_character_screen_with_dialog = location_found
+    ScreenState().on_character_screen_with_dialog = location_found
     logger.debug(f"check_character_screen shadowed: similarity factor {similarity}")
     return location_found
 
@@ -66,7 +66,7 @@ def on_character_screen(screenshot):
     similarity = calculate_similarity(cropped_screenshot, referenceImage)
 
     location_found = similarity > 0.9
-    State().on_character_screen = location_found
+    ScreenState().on_character_screen = location_found
     logger.debug(f"check_character_screen: similarity factor {similarity}")
     return location_found
 

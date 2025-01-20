@@ -1,7 +1,45 @@
 # i dont know how to make it properly at the moment, so just put stylesheet away so i dont see it
+# it is currenty maintained by chatgpt ;)
 
 def get_application_stylesheet():
     return """
+            QLineEdit {
+                color: white;               /* White text */
+                border: 1px solid #555555;  /* Dark gray border */
+                border-radius: 5px;         /* Rounded corners */
+                padding: 5px 10px;          /* Padding inside line edit */
+                font-size: 16px;            /* Text size */
+            }
+
+            QLineEdit:hover {
+                background-color: #555555;  /* Lighter gray when hovered */
+                border-color: #666666;      /* Slightly lighter border on hover */
+            }
+
+            QLineEdit:focus {
+                border: 1px solid #66afe9;  /* Light blue border when focused */
+                background-color: #666666;  /* Slightly darker background when focused */
+            }
+
+            QPushButton {
+                background-color: #444444;  /* Dark gray background */
+                color: white;               /* White text */
+                border: 1px solid #555555;  /* Subtle dark border */
+                border-radius: 5px;         /* Rounded corners */
+                padding: 10px 20px;         /* Padding inside button */
+                font-size: 16px;            /* Text size */
+            }
+
+            QPushButton:hover {
+                background-color: #555555;  /* Lighter gray when hovered */
+                border-color: #666666;      /* Slightly lighter border on hover */
+            }
+
+            QPushButton:pressed {
+                background-color: #333333;  /* Even darker gray when pressed */
+                border-color: #444444;      /* Darker border when pressed */
+            }
+
             QWidget {
                 background-color: #2E2E2E;  /* Dark grey background */
                 color: #F0F0F0;  /* Light greyish/white text */
