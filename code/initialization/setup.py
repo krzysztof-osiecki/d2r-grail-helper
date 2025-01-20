@@ -1,7 +1,7 @@
 import logging
 import pytesseract
 import os
-from constants.contants import RUNTIME_PATH, DATA_PATH
+from constants.contants import RUNTIME_PATH, DATA_PATH, USER_PATH
 import pandas as pd
 
 # load csv library of items
@@ -13,6 +13,8 @@ def initialize():
     os.makedirs(RUNTIME_PATH + "screenshots", exist_ok=True)
     os.makedirs(RUNTIME_PATH + "debug", exist_ok=True)
     os.makedirs(RUNTIME_PATH + "items", exist_ok=True)
+
+    os.makedirs(USER_PATH, exist_ok=True)
 
     # setup logger
     logging.basicConfig(filename=RUNTIME_PATH + 'log/debug.log', encoding='utf-8', level=logging.INFO)
