@@ -22,4 +22,4 @@ TODO and TOTHINK:
 - same with pressing ESC (darker filter makes area not recognized)
 - and with long loading screen
 - item hover can also cover the area checked for in-game
-- check if screenshot can ignore assistant window
+- check if screenshot can ignore assistant window (see comment in screenshot.py method screenshot_window)
