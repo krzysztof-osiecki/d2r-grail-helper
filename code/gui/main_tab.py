@@ -53,6 +53,6 @@ class MainTab(QWidget):
         if total_time > 0:
             percentage_of_time_in_game_value = application_state.current_session.seconds_in_game/(application_state.current_session.seconds_in_game+application_state.current_session.seconds_out_of_game)
             
-        self.percentage_of_time_in_game.setText(f"Time in-game: {round(percentage_of_time_in_game_value * 100, 2)}")
+        self.percentage_of_time_in_game.setText(f"Time in-game: {round(percentage_of_time_in_game_value * 100, 2)}%")
         self.screen_state.setText(f"{ScreenState()}")
         self.number_of_games.setText(f"Games joined: {application_state.current_session.number_of_games}")

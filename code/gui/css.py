@@ -2,189 +2,148 @@
 # it is currenty maintained by chatgpt ;)
 
 def get_application_stylesheet():
-    return """
-            QLineEdit {
-                color: white;               /* White text */
-                border: 1px solid #555555;  /* Dark gray border */
-                border-radius: 5px;         /* Rounded corners */
-                padding: 5px 10px;          /* Padding inside line edit */
-                font-size: 16px;            /* Text size */
-            }
+    base_color = "#2E2E2E"
+    text_color = "#F0F0F0"
+    border_color = "#333333"
+    hover_color = "#555555"
+    active_color = "#666666"
+    highlight_color = "#888888"
+    selected_color = "#66afe9"
+    font_size = "16px"
+    border_radius = "5px"
+    padding = "5px"
 
-            QLineEdit:hover {
-                background-color: #555555;  /* Lighter gray when hovered */
-                border-color: #666666;      /* Slightly lighter border on hover */
-            }
+    return f"""
+        /* Global Styles */
+        QWidget {{
+            background-color: {base_color};
+            color: {text_color};
+            font-size: {font_size};
+        }}
 
-            QLineEdit:focus {
-                border: 1px solid #66afe9;  /* Light blue border when focused */
-                background-color: #666666;  /* Slightly darker background when focused */
-            }
+        /* QLineEdit Styles */
+        QLineEdit {{
+            color: white;
+            border: 1px solid {border_color};
+            border-radius: {border_radius};
+            padding: {padding} 10px;
+            font-size: {font_size};
+        }}
+        QLineEdit:hover {{
+            background-color: {hover_color};
+            border-color: {active_color};
+        }}
+        QLineEdit:focus {{
+            border: 1px solid {selected_color};
+            background-color: {active_color};
+        }}
 
-            QPushButton {
-                background-color: #444444;  /* Dark gray background */
-                color: white;               /* White text */
-                border: 1px solid #555555;  /* Subtle dark border */
-                border-radius: 5px;         /* Rounded corners */
-                padding: 10px 20px;         /* Padding inside button */
-                font-size: 16px;            /* Text size */
-            }
+        /* QPushButton Styles */
+        QPushButton {{
+            background-color: {hover_color};
+            color: white;
+            border: 1px solid {border_color};
+            border-radius: {border_radius};
+            padding: 10px 20px;
+            font-size: {font_size};
+        }}
+        QPushButton:hover {{
+            background-color: {active_color};
+            border-color: {highlight_color};
+        }}
+        QPushButton:pressed {{
+            background-color: {border_color};
+            border-color: {hover_color};
+        }}
 
-            QPushButton:hover {
-                background-color: #555555;  /* Lighter gray when hovered */
-                border-color: #666666;      /* Slightly lighter border on hover */
-            }
+        /* QTableWidget Styles */
+        QTableWidget {{
+            background-color: {base_color};
+            color: {text_color};
+            border: 1px solid {border_color};
+            gridline-color: {hover_color};
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            border-radius: {border_radius};
+            padding: {padding};
+        }}
+        QTableWidget::item {{
+            background-color: {hover_color};
+            color: {text_color};
+            border: 1px solid {border_color};
+            padding: {padding};
+            border-radius: {border_radius};
+        }}
+        QTableWidget::item:selected {{
+            background-color: {highlight_color};
+            color: white;
+        }}
 
-            QPushButton:pressed {
-                background-color: #333333;  /* Even darker gray when pressed */
-                border-color: #444444;      /* Darker border when pressed */
-            }
+        /* QHeaderView Styles */
+        QHeaderView::section {{
+            background-color: {border_color};
+            color: {text_color};
+            padding: 10px;
+            font-weight: bold;
+            border: 1px solid {hover_color};
+        }}
+        QHeaderView::section:horizontal {{
+            border-bottom: 2px solid {hover_color};
+        }}
+        QHeaderView::section:vertical {{
+            border-right: 2px solid {hover_color};
+        }}
 
-            QWidget {
-                background-color: #2E2E2E;  /* Dark grey background */
-                color: #F0F0F0;  /* Light greyish/white text */
-                border-radius: 5px; 
-            }
-                           
-            QTableWidget {
-                background-color: #2E2E2E;  /* Dark background for table */
-                color: #F0F0F0;              /* White text color */
-                border: 1px solid #333;      /* Border around the table */
-                gridline-color: #444;        /* Gridline color between cells */
-                font-size: 14px;             /* Font size */
-                font-family: Arial, sans-serif;  /* Font style */
-                border-radius: 10px;          /* Rounded corners for the whole table */
-                padding: 5px;
-            }
+        /* QScrollBar Styles */
+        QScrollBar:horizontal, QScrollBar:vertical {{
+            background-color: {base_color};
+            border: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 6px;
+        }}
+        QScrollBar::handle:horizontal, QScrollBar::handle:vertical {{
+            background-color: {hover_color};
+            border-radius: 6px;
+        }}
+        QScrollBar::handle:horizontal:hover, QScrollBar::handle:vertical:hover {{
+            background-color: {highlight_color};
+        }}
+        QScrollBar::add-line, QScrollBar::sub-line,
+        QScrollBar::add-page, QScrollBar::sub-page {{
+            background: none;
+            border: none;
+        }}
 
-            QTableWidget::item {
-                background-color: #444444;  /* Background color for table items */
-                color: #F0F0F0;              /* Text color */
-                border: 1px solid #333;      /* Border around each cell */
-                padding: 5px;                /* Padding inside cells */
-                border-radius: 5px;          /* Rounded corners for cells */
-            }
+        /* QTabWidget Styles */
+        QTabWidget {{
+            background-color: {base_color};
+            border: 1px solid {border_color};
+        }}
+        QTabBar::tab {{
+            background-color: {hover_color};
+            color: {text_color};
+            padding: 10px;
+            margin-right: 2px;
+            border: 1px solid {border_color};
+            border-radius: {border_radius};
+        }}
+        QTabBar::tab:selected {{
+            background-color: {highlight_color};
+            color: white;
+            font-weight: bold;
+        }}
+        QTabBar::tab:hover {{
+            background-color: {active_color};
+        }}
+        QTabWidget::pane {{
+            border: none;
+        }}
 
-            QTableWidget::item:selected {
-                background-color: #888888;  /* Background color for selected item */
-                color: white;               /* Text color for selected item */
-            }
-
-            QHeaderView::section {
-                background-color: #333333;  /* Background color for headers */
-                color: #F0F0F0;              /* Text color for headers */
-                padding: 10px;               /* Padding inside headers */
-                font-weight: bold;           /* Make header text bold */
-                border: 1px solid #444;      /* Border around headers */
-            }
-
-            QHeaderView::section:horizontal {
-                border-bottom: 2px solid #444; /* Bottom border for horizontal headers */
-            }
-
-            QHeaderView::section:vertical {
-                border-right: 2px solid #444;  /* Right border for vertical headers */
-            }
-
-            /* Modern Scrollbar Styles */
-            QScrollBar:horizontal, QScrollBar:vertical {
-                background-color: #2E2E2E; /* Background of scrollbar */
-                border: none;              /* Remove border */
-                height: 12px;              /* Height for horizontal scrollbar */
-                width: 12px;               /* Width for vertical scrollbar */
-                border-radius: 6px;        /* Rounded corners for scrollbar */
-            }
-
-            QScrollBar::handle:horizontal, QScrollBar::handle:vertical {
-                background-color: #555555;  /* Handle color */
-                border-radius: 6px;         /* Rounded handle */
-            }
-
-            QScrollBar::handle:horizontal:hover, QScrollBar::handle:vertical:hover {
-                background-color: #888888;  /* Hover effect for the scrollbar handle */
-            }
-
-            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal,
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                border: none;               /* Remove arrows */
-                background: none;
-            }
-
-            QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal,
-            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-                background: none;           /* Remove background of scroll area */
-            }
-
-            /* Style for the corner header (the one where row and column meet) */
-            QTableCornerButton::section {
-                background-color: #333333;  /* Same background as other headers */
-                border: none;               /* No border */
-                color: #F0F0F0;              /* White text */
-            }
-            
-            QTableWidget {
-                background-color: #2E2E2E;  /* Dark background for table */
-                color: #F0F0F0;              /* White text color */
-                border: 1px solid #333;      /* Border around the table */
-                gridline-color: #444;        /* Gridline color between cells */
-                font-size: 14px;             /* Font size */
-                font-family: Arial, sans-serif;  /* Font style */
-            }
-
-            QTableWidget::item {
-                background-color: #444444;  /* Background color for table items */
-                color: #F0F0F0;              /* Text color */
-                border: 1px solid #333;      /* Border around each cell */
-                padding: 5px;                /* Padding inside cells */
-                border-radius: 5px;          /* Rounded corners for cells */
-            }
-
-            QTableWidget::item:selected {
-                background-color: #888888;  /* Background color for selected item */
-                color: white;               /* Text color for selected item */
-            }
-
-            QHeaderView::section {
-                background-color: #333333;  /* Background color for headers */
-                color: #F0F0F0;              /* Text color for headers */
-                padding: 10px;               /* Padding inside headers */
-                font-weight: bold;           /* Make header text bold */
-                border: 1px solid #444;      /* Border around headers */
-            }
-
-            QHeaderView::section:horizontal {
-                border-bottom: 2px solid #444; /* Bottom border for horizontal headers */
-            }
-
-            QHeaderView::section:vertical {
-                border-right: 2px solid #444;  /* Right border for vertical headers */
-            }
-                                       
-            QTabWidget {
-                background-color: #2E2E2E;  /* Dark grey background for the tab widget */
-                border: 1px solid #333;     /* Border around the tab widget */
-            }
-
-            QTabBar::tab {
-                background-color: #444444;  /* Default background for tabs */
-                color: #F0F0F0;              /* Text color */
-                padding: 10px;               /* Padding inside tabs */
-                margin-right: 2px;           /* Space between tabs */
-                border: 1px solid #333;      /* Border around each tab */
-                border-radius: 5px;          /* Rounded corners for tabs */
-            }
-
-            QTabBar::tab:selected {
-                background-color: #888888;  /* Selected tab background color */
-                color: white;               /* Text color for selected tab */
-                font-weight: bold;          /* Make selected tab text bold */
-            }
-
-            QTabBar::tab:hover {
-                background-color: #555555;  /* Hover effect for tabs */
-            }
-
-            QTabWidget::pane {
-                border: none;  /* Remove border around the tab content */
-            }
-        """
+        /* QTableCornerButton Styles */
+        QTableCornerButton::section {{
+            background-color: {border_color};
+            color: {text_color};
+            border: none;
+        }}
+    """

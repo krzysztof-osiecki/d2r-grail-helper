@@ -56,7 +56,7 @@ def on_character_screen_shadowed(screenshot):
     similarity = calculate_similarity(cropped_screenshot, referenceImage)
 
     location_found = similarity > 0.9
-    ScreenState().on_character_screen_with_dialog = location_found
+    ScreenState().on_character_screen = location_found
     logger.debug(f"check_character_screen shadowed: similarity factor {similarity}")
     return location_found
 

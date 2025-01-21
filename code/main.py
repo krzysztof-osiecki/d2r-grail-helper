@@ -1,7 +1,6 @@
 import logging
 
 from PySide6.QtWidgets import QApplication
-from state.screen_state_observer import init_screen_state_observer
 from screenshot.screenshot import init_screenshot_loop
 from gui.main_window import MainWindow
 from shortcuts.shortcuts import init_keyboard_shortcuts
@@ -14,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 def main():
     initialize()
-    init_screen_state_observer()
     init_keyboard_shortcuts()
     init_screenshot_loop()
     application_state = ApplicationState()

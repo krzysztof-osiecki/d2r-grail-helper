@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import List
 from pandas import Series
 from constants.contants import USER_PATH, DEFAULT_PROFILE
+from utility.timer import Timer
 import pandas as pd
 import os
 import json
@@ -16,7 +17,7 @@ LAST_SESSION_PATH = f"{USER_PATH}last_session.json"
 class Session():
     number_of_games: int = 0
     session_start: datetime = datetime.now()
-    game_start: datetime = None
+    game_timer: Timer = None
     items_saved: List[Series] = field(default_factory=list, repr=False)
     seconds_in_game: int = 0
     seconds_out_of_game: int = 0
@@ -34,7 +35,6 @@ class Session():
         return {
             "number_of_games": self.number_of_games,
             "session_start": self.session_start.isoformat(),  # Convert datetime to ISO string
-            "game_start": self.game_start.isoformat() if self.game_start else None,
             "items_saved": [item["Item"] for item in self.items_saved],
             "seconds_in_game": self.seconds_in_game,
             "seconds_out_of_game": self.seconds_out_of_game
@@ -45,7 +45,6 @@ class Session():
         """Convert a dictionary back into a Session object."""
         # Deserialize datetime fields from ISO format strings
         session_start = datetime.fromisoformat(data["session_start"])
-        game_start = datetime.fromisoformat(data["game_start"]) if data["game_start"] else None
         from state.application_state import ApplicationState
         item_library = ApplicationState().item_library
         # Convert the list of dictionaries back into Series objects
@@ -55,7 +54,6 @@ class Session():
         return cls(
             number_of_games=data["number_of_games"],
             session_start=session_start,
-            game_start=game_start,
             items_saved=items_saved,
             seconds_in_game=data["seconds_in_game"],
             seconds_out_of_game=data["seconds_out_of_game"],
