@@ -15,7 +15,7 @@ MAX_CROPPED_ITEMS = 20
 HOVER_ITEM_IMAGE_NAME = [
     "hover_item_drop.jpg",
     "hover_item_compare.jpg",
-    "hover_item_unequip.jpg"
+    "hover_item_unequip.jpg",
     "hover_item_move.jpg",
     ]
 def recognize_item(screenshot_path, show_result_image = False):
