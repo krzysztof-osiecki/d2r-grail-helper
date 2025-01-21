@@ -107,6 +107,8 @@ def find_item_box(screenshot_path, show_result_image = False):
             return True, output_path
         else:
             logger.info(f"Unable to find exactly one match with item {item}.")
+        
+        return False, None
 
 def preprocess_item_name(input_str):
     # Remove everything after and including the first bracket, including the space before it
