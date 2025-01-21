@@ -6,22 +6,17 @@ Current features:
 - item recognition and adding view in-game shortcut (not perfect)
 - game counting and in-game timer
 - session timer
-- session persisted items list
+- recognized item popup (allowring removal of badly recognized)
+- profiles with saved items and games counted
 
 Expected features:
-- monitoring grail collection
-- persistance for items collection
+- monitoring grail collection (stats)
 - manual editing of items
-- rune words monitoring
 
 I don't normaly work with python, started with idea of using pipenv but didn't work for one of the libraries, so im just pip installing as i go.
 Would like to make pipenv work at some point.
 
 TODO and TOTHINK:
-- make some nice toast notifying when actions are successful
-- use them to show which item was recognized and allow user to tell if its wrong
-- currently hiding game and showing again makes it count as new game (maybe reset game after seeing character screen)
-- same with pressing ESC (darker filter makes area not recognized)
-- and with long loading screen
-- item hover can also cover the area checked for in-game
+- focus on item recognition (preprocessing image, clearing up the text, remove trash characters, maybe allow prefix/suffix search, carefull to not introduce too many FP, maybe some 'text similarity' factor instead of regular comparison)
+- next show and calculate stats
 - check if screenshot can ignore assistant window (see comment in screenshot.py method screenshot_window)

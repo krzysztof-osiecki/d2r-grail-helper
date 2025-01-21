@@ -36,6 +36,10 @@ class AddedItemNotification(QWidget):
             color = "#3B9B3A"  # Dark green for Set items (approximation for Diablo 2 Resurrected)
         elif rarity == "Unique":
             color = "#C38E4E"  # Light brown/golden-brown for Unique items (approximation for Diablo 2 Resurrected)
+        elif rarity == "Rune":
+            color = "#FFAA00"
+        elif rarity == "Runeword":
+            color = "#C7B377"
         else:
             color = "black"  # Default color for other rarities
 

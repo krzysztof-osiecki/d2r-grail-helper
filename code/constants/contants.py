@@ -1,5 +1,6 @@
 USER_PATH = "user/"
 RUNTIME_PATH = "runtime/"
 DATA_PATH = "data/"
+ITEM_DATA_PATH = "data/items/"
 DEBUG_PATH = "runtime/debug/"
 DEFAULT_PROFILE = "default_profile"

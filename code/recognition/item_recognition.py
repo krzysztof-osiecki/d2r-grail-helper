@@ -25,14 +25,17 @@ def recognize_item(screenshot_path, show_result_image = False):
         return False
     
     item_text = get_text_from_image(item_image_path)
-    logger.info(f"Text from item {item_text}")
+    if item_text == None:
+        logger.warning(f"Did not recognize any text from item, saveing debug image!")
+        save_item_debug_data(item_image_path, [])
+        return False
     lines = item_text.splitlines()
     processed_lines = []
     for item in lines:
         processed_item = preprocess_item_name(item)
         processed_lines.append(processed_item)
         logger.info(f"Looking for item {processed_item}")
-        matching_rows = application_state.item_library["Item"].str.contains(processed_item, case=False)
+        matching_rows = application_state.item_library["Item"].str.match(processed_item, case=False)
         if len(processed_item) > 1 and matching_rows.any():
             for _, row in application_state.item_library[matching_rows].iterrows():
                 item_debug_data = (item_image_path, processed_lines)
