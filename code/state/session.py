@@ -8,9 +8,7 @@ import pandas as pd
 import os
 import json
 import logging
-import shutil
-import uuid
-
+from debug.debug_utility import save_item_debug_data
 
 
 logger = logging.getLogger(__name__)
@@ -47,15 +45,8 @@ class Session():
         self._items_saved = [s for s in self._items_saved if not s.equals(item)]
         if self._items_debug_data[self.string_for_item(item)] != None:
             screenshot_path, text_lines = self._items_debug_data[self.string_for_item(item)]
-            random_uuid = uuid.uuid4()
-            destination_path = f"{DEBUG_PATH}{random_uuid.hex}"
-            shutil.move(screenshot_path, destination_path+".jpg")       
-
-             # Step 2: Write the array of lines to the new file
-            with open(destination_path +".txt", 'w') as file:
-                for line in text_lines:
-                    file.write(line + '\n')  # Add newline to each line
-
+            save_item_debug_data(screenshot_path, text_lines)
+            
         for callback in self._item_change_observers:
             callback(item, "REMOVED")
 

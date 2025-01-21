@@ -4,6 +4,7 @@ import numpy as np
 import logging
 from ocr.ocr import get_text_from_image
 from state.application_state import ApplicationState
+from debug.debug_utility import save_item_debug_data
 import re
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ def recognize_item(screenshot_path, show_result_image = False):
                 application_state.current_session.add_item(row[["Item", "Rarity"]], item_debug_data)
                 logger.warning(f"Found item: {item}")
                 return True
+    save_item_debug_data(item_image_path, processed_lines)
     return False
 
 def find_item_box(screenshot_path, show_result_image = False):
@@ -46,7 +48,6 @@ def find_item_box(screenshot_path, show_result_image = False):
         # Load the source image and template image
         source_image = cv2.imread(screenshot_path)  # The larger image
         template_image = cv2.imread(f"{DATA_PATH}hover_item_footers/{item}")  # The smaller image you're looking for
-
         # Convert images to grayscale (optional, but recommended for template matching)
         gray_source = cv2.cvtColor(source_image, cv2.COLOR_BGR2GRAY)
         gray_template = cv2.cvtColor(template_image, cv2.COLOR_BGR2GRAY)
