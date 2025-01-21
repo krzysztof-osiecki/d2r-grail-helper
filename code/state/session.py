@@ -2,12 +2,16 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from typing import List
 from pandas import Series
-from constants.contants import USER_PATH, DEFAULT_PROFILE
+from constants.contants import USER_PATH, DEFAULT_PROFILE, DEBUG_PATH
 from utility.timer import Timer
 import pandas as pd
 import os
 import json
 import logging
+import shutil
+import uuid
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,15 +22,42 @@ class Session():
     number_of_games: int = 0
     session_start: datetime = datetime.now()
     game_timer: Timer = None
-    items_saved: List[Series] = field(default_factory=list, repr=False)
     seconds_in_game: int = 0
     seconds_out_of_game: int = 0
+    _items_saved: List[Series] = field(default_factory=list, repr=False)
     _item_change_observers = []
+    _items_debug_data = {}
 
-    # should be done on append/remove from items_saved, dont see easy way to do this now except writing custom list
-    def notify_item_change(self):
+    @property
+    def items_saved(self):
+        return self._items_saved
+
+    def string_for_item(self, item):
+        return item["Item"] +"_"+ item["Rarity"]
+    
+    def add_item(self, item, item_debug_data = None):
+        self._items_saved.append(item);
+        if item_debug_data:
+            self._items_debug_data[self.string_for_item(item)] = item_debug_data
         for callback in self._item_change_observers:
-            callback(self.items_saved)
+            callback(item, "ADDED")
+
+    def remove_item(self, item):
+        # there will be a problem for multiple of same item, ditch the Series here maybe?
+        self._items_saved = [s for s in self._items_saved if not s.equals(item)]
+        if self._items_debug_data[self.string_for_item(item)] != None:
+            screenshot_path, text_lines = self._items_debug_data[self.string_for_item(item)]
+            random_uuid = uuid.uuid4()
+            destination_path = f"{DEBUG_PATH}{random_uuid.hex}"
+            shutil.move(screenshot_path, destination_path+".jpg")       
+
+             # Step 2: Write the array of lines to the new file
+            with open(destination_path +".txt", 'w') as file:
+                for line in text_lines:
+                    file.write(line + '\n')  # Add newline to each line
+
+        for callback in self._item_change_observers:
+            callback(item, "REMOVED")
 
     def subscribe_item_change(self, callback):
         self._item_change_observers.append(callback)

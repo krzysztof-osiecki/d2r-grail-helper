@@ -9,7 +9,7 @@ import re
 logger = logging.getLogger(__name__)
 
 CROPPED_ITEM_INDEX = 0
-MAX_CROPPED_ITEMS = 10
+MAX_CROPPED_ITEMS = 20
 
 HOVER_ITEM_IMAGE_NAME = [
     "hover_item_drop.jpg",
@@ -26,14 +26,16 @@ def recognize_item(screenshot_path, show_result_image = False):
     item_text = get_text_from_image(item_image_path)
     logger.info(f"Text from item {item_text}")
     lines = item_text.splitlines()
+    processed_lines = []
     for item in lines:
         processed_item = preprocess_item_name(item)
+        processed_lines.append(processed_item)
         logger.info(f"Looking for item {processed_item}")
         matching_rows = application_state.item_library["Item"].str.contains(processed_item, case=False)
         if len(processed_item) > 1 and matching_rows.any():
             for _, row in application_state.item_library[matching_rows].iterrows():
-                application_state.current_session.items_saved.append(row)
-                application_state.current_session.notify_item_change()
+                item_debug_data = (item_image_path, processed_lines)
+                application_state.current_session.add_item(row[["Item", "Rarity"]], item_debug_data)
                 logger.warning(f"Found item: {item}")
                 return True
     return False
@@ -89,7 +91,7 @@ def find_item_box(screenshot_path, show_result_image = False):
             top_left_extend = (locations[1][0] - 150, locations[0][0] - 1000) 
             bottom_right_extend  = (top_left[0] + gray_template.shape[1] + 150, top_left[1] + gray_template.shape[0])
 
-            cropped_region = gray_source[max(top_left_extend[1],0):max(bottom_right_extend[1],0), top_left_extend[0]:bottom_right_extend[0]]
+            cropped_region = gray_source[max(top_left_extend[1],0):max(bottom_right_extend[1],0), max(top_left_extend[0],0):max(bottom_right_extend[0],0)]
             output_path = f"{RUNTIME_PATH}items/cropped_item_{CROPPED_ITEM_INDEX}.jpg"
             CROPPED_ITEM_INDEX = (CROPPED_ITEM_INDEX + 1) % MAX_CROPPED_ITEMS
             cv2.imwrite(output_path, cropped_region)

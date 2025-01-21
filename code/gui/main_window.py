@@ -1,19 +1,33 @@
 from PySide6.QtWidgets import QWidget, QMainWindow, QLabel, QTabWidget, QVBoxLayout, QApplication
-from PySide6.QtCore import Qt, QTimer, QPoint
+from PySide6.QtCore import Qt, QTimer, QPoint, QThread, QTimer, QObject, Signal
 from gui.session_tab import SessionTab
 from gui.items_tab import ItemsTab
 from gui.game_tab import GameTab
 from gui.main_tab import MainTab
+from gui.toast import AddedItemNotification
 from gui.css import get_application_stylesheet
 import logging
+from pandas import Series
 
 logger = logging.getLogger(__name__)
+
+class ItemAddWorker(QObject):
+    notify = Signal(Series)
+
+    def notify_with_last_added_item(self, item):
+        self.notify.emit(item)
 
 class MainWindow(QMainWindow):
     label: QLabel
 
     def __init__(self):
         super().__init__()
+
+        self.worker_thread = QThread()
+        self.item_add_worker = ItemAddWorker()
+        self.item_add_worker.moveToThread(self.worker_thread)
+        self.item_add_worker.notify.connect(self.show_item_added_toast)
+        self.worker_thread.start()
 
         # Set window properties
         self.setWindowTitle("D2R Assistant")
@@ -33,7 +47,7 @@ class MainWindow(QMainWindow):
 
         self.main_tab = MainTab()
         self.game_tab = GameTab()
-        self.items_tab = ItemsTab()
+        self.items_tab = ItemsTab(self)
         self.session_tab = SessionTab()
 
         tab_widget = QTabWidget(self)
@@ -83,3 +97,7 @@ class MainWindow(QMainWindow):
         """Stop dragging when the left mouse button is released"""
         if event.button() == Qt.LeftButton:
             self._drag_active = False
+
+    def show_item_added_toast(self, saved_item):
+        toast = AddedItemNotification(self, saved_item)
+        toast.show_notification()
