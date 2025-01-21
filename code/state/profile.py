@@ -45,7 +45,8 @@ def load_profile(profile_name):
     try:
         with open(USER_PROFILE_PATH, "r") as file:
             data = json.load(file)  # Load the JSON data from the file
-            return Profile.from_dict(data)  # Convert the data back into a Session object
+            profile =  Profile.from_dict(data)  # Convert the data back into a Profile object
+            return profile
     except (json.JSONDecodeError, KeyError) as e:
         logger.warning(f"Error reading the profile file: {e}. Returning a default object for given name.")
         return Profile(profile_name)  # Return a default Session if there is an error reading the file

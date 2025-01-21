@@ -17,6 +17,7 @@ I don't normaly work with python, started with idea of using pipenv but didn't w
 Would like to make pipenv work at some point.
 
 TODO and TOTHINK:
-- focus on item recognition (preprocessing image, clearing up the text, remove trash characters, maybe allow prefix/suffix search, carefull to not introduce too many FP, maybe some 'text similarity' factor instead of regular comparison)
+- on incorrect recognition add option to choose manualy from list
+- rune recognition (check for particular letters swaps like het instead of hel, may add a few swaps to check)
 - next show and calculate stats
 - check if screenshot can ignore assistant window (see comment in screenshot.py method screenshot_window)

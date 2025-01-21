@@ -19,8 +19,8 @@ class ItemsTab(QWidget):
 
         self.items_table.setRowCount(len(self.current_session.items_saved))  # Set number of rows
         if len(self.current_session.items_saved) > 0:
-            self.items_table.setColumnCount(len(self.current_session.items_saved[0].index))  # Set number of columns
-            self.items_table.setHorizontalHeaderLabels(self.current_session.items_saved[0].index.tolist())  # Set column headers
+            self.items_table.setColumnCount(len(self.current_session.items_saved[0].keys()))  # Set number of columns
+            self.items_table.setHorizontalHeaderLabels(self.current_session.items_saved[0].keys())  # Set column headers
 
         # Populate the table with data
         for row_index, series in enumerate(self.current_session.items_saved):

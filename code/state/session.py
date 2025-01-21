@@ -22,7 +22,7 @@ class Session():
     game_timer: Timer = None
     seconds_in_game: int = 0
     seconds_out_of_game: int = 0
-    _items_saved: List[Series] = field(default_factory=list, repr=False)
+    _items_saved: List[dict] = field(default_factory=list, repr=False)
     _item_change_observers = []
     _items_debug_data = {}
 
@@ -46,7 +46,7 @@ class Session():
         if self._items_debug_data[self.string_for_item(item)] != None:
             screenshot_path, text_lines = self._items_debug_data[self.string_for_item(item)]
             save_item_debug_data(screenshot_path, text_lines)
-            
+
         for callback in self._item_change_observers:
             callback(item, "REMOVED")
 
@@ -76,7 +76,7 @@ class Session():
         return cls(
             number_of_games=data["number_of_games"],
             session_start=session_start,
-            items_saved=items_saved,
+            _items_saved=items_saved,
             seconds_in_game=data["seconds_in_game"],
             seconds_out_of_game=data["seconds_out_of_game"],
         )

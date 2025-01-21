@@ -6,6 +6,10 @@ from ocr.ocr import get_text_from_image
 from state.application_state import ApplicationState
 from debug.debug_utility import save_item_debug_data
 import re
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from fuzzywuzzy import fuzz
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +30,7 @@ def recognize_item(screenshot_path, show_result_image = False):
     
     item_text = get_text_from_image(item_image_path)
     if item_text == None:
-        logger.warning(f"Did not recognize any text from item, saveing debug image!")
+        logger.warning(f"Did not recognize any text from item, saving debug image!")
         save_item_debug_data(item_image_path, [])
         return False
     lines = item_text.splitlines()
@@ -34,16 +38,35 @@ def recognize_item(screenshot_path, show_result_image = False):
     for item in lines:
         processed_item = preprocess_item_name(item)
         processed_lines.append(processed_item)
-        logger.info(f"Looking for item {processed_item}")
-        matching_rows = application_state.item_library["Item"].str.match(processed_item, case=False)
-        if len(processed_item) > 1 and matching_rows.any():
-            for _, row in application_state.item_library[matching_rows].iterrows():
+        logger.debug(f"Looking for item {processed_item}")
+        item_name = find_by_fuzzywuzzy_similarity(application_state.item_library, processed_item)
+        if item_name != None:
+            item_from_library = application_state.item_library[application_state.item_library['Item'] == item_name]
+            if not item_from_library.empty:  # Check if the filtered row exists
+                item_dict = {
+                    "Item": item_name,
+                    "Rarity": item_from_library.iloc[0]["Rarity"],  # Access the 'Rarity' column
+                }
                 item_debug_data = (item_image_path, processed_lines)
-                application_state.current_session.add_item(row[["Item", "Rarity"]], item_debug_data)
-                logger.warning(f"Found item: {item}")
+                application_state.current_session.add_item(item_dict, item_debug_data)
                 return True
+            else:
+                logger.error("this should not happen, we found item but then it was not in dataframe!")
+                return False
     save_item_debug_data(item_image_path, processed_lines)
     return False
+
+def find_by_fuzzywuzzy_similarity(df, input_string, column="Item"):
+    for item in df[column]:
+        # sim1 = calculate_cosine_similarity(input_string.lower(), item.lower())
+        # sim2 = jaccard_similarity(input_string.lower(), item.lower())
+        # testing on few examples fuzzywuzzy seems best
+        fuzzywuzzy_sim = fuzzywuzzy_similarity(input_string.lower(), item.lower())
+        if fuzzywuzzy_sim > 90:
+            print(item, input_string, fuzzywuzzy_sim)
+            return item
+    return None
+
 
 def find_item_box(screenshot_path, show_result_image = False):
     global CROPPED_ITEM_INDEX, MAX_CROPPED_ITEMS
@@ -116,11 +139,31 @@ def find_item_box(screenshot_path, show_result_image = False):
 def preprocess_item_name(input_str):
     # Remove everything after and including the first bracket, including the space before it
     cleaned_str = re.sub(r'\s?\(.*\)', '', input_str)
-    
     # Replace @ with O
     cleaned_str = cleaned_str.replace('@', 'O')
     
+    cleaned_string = re.sub(r"[^a-zA-Z']", "", cleaned_str)
     # Trim leading and trailing spaces
     cleaned_str = cleaned_str.strip()
     
-    return re.escape(cleaned_str)
+    return re.escape(cleaned_str.lower())
+
+
+# Function to calculate cosine similarity
+def calculate_cosine_similarity(text1, text2):
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform([text1, text2])
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+    return similarity[0][0]
+
+# Function to calculate Jaccard similarity
+def jaccard_similarity(text1, text2):
+    words1 = set(text1.split())
+    words2 = set(text2.split())
+    intersection = len(words1 & words2)
+    union = len(words1 | words2)
+    return intersection / union
+
+# Function to calculate fuzzywuzzy similarity
+def fuzzywuzzy_similarity(text1, text2):
+    return fuzz.ratio(text1, text2)
