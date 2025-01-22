@@ -33,22 +33,22 @@ class Session():
     def string_for_item(self, item):
         return item["Item"] +"_"+ item["Rarity"]
     
-    def add_item(self, item, item_debug_data = None):
+    def add_item(self, item, item_debug_data = None, manual = False):
         self._items_saved.append(item);
         if item_debug_data:
             self._items_debug_data[self.string_for_item(item)] = item_debug_data
         for callback in self._item_change_observers:
-            callback(item, "ADDED")
+            callback(item, "ADDED", manual)
 
-    def remove_item(self, item):
+    def remove_item(self, item, manual = True):
         # there will be a problem for multiple of same item, ditch the Series here maybe?
-        self._items_saved = [s for s in self._items_saved if not s.equals(item)]
+        self._items_saved.remove(item)
         if self._items_debug_data[self.string_for_item(item)] != None:
             screenshot_path, text_lines = self._items_debug_data[self.string_for_item(item)]
             save_item_debug_data(screenshot_path, text_lines)
 
         for callback in self._item_change_observers:
-            callback(item, "REMOVED")
+            callback(item, "REMOVED", manual)
 
     def subscribe_item_change(self, callback):
         self._item_change_observers.append(callback)

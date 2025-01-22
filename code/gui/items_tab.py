@@ -13,8 +13,8 @@ class ItemsTab(QWidget):
         grid_layout.addWidget(self.items_table)
         self.setLayout(grid_layout)
 
-    def update_items_table(self, item, operation):
-        if operation == "ADDED":
+    def update_items_table(self, item, operation, manual):
+        if operation == "ADDED" and not manual:
             self.main_window.item_add_worker.notify_with_last_added_item(item)
 
         self.items_table.setRowCount(len(self.current_session.items_saved))  # Set number of rows

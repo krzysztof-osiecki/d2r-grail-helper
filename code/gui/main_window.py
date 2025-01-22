@@ -4,18 +4,24 @@ from gui.session_tab import SessionTab
 from gui.items_tab import ItemsTab
 from gui.game_tab import GameTab
 from gui.main_tab import MainTab
-from gui.toast import AddedItemNotification
+from gui.add_item import AddedItemNotification
+from gui.select_item import SelectItemNotification
 from gui.css import get_application_stylesheet
 import logging
-from pandas import Series
 
 logger = logging.getLogger(__name__)
 
 class ItemAddWorker(QObject):
-    notify = Signal(Series)
+    notify = Signal(dict)
 
     def notify_with_last_added_item(self, item):
         self.notify.emit(item)
+
+class ManualAddItemWorker(QObject):
+    notify = Signal()
+
+    def notify_show_add_item_window(self):
+        self.notify.emit()
 
 class MainWindow(QMainWindow):
     label: QLabel
@@ -27,6 +33,9 @@ class MainWindow(QMainWindow):
         self.item_add_worker = ItemAddWorker()
         self.item_add_worker.moveToThread(self.worker_thread)
         self.item_add_worker.notify.connect(self.show_item_added_toast)
+        self.manual_add_item_worker = ManualAddItemWorker()
+        self.manual_add_item_worker.moveToThread(self.worker_thread)
+        self.manual_add_item_worker.notify.connect(self.show_add_item_window)
         self.worker_thread.start()
 
         # Set window properties
@@ -100,4 +109,8 @@ class MainWindow(QMainWindow):
 
     def show_item_added_toast(self, saved_item):
         toast = AddedItemNotification(self, saved_item)
+        toast.show_notification()
+
+    def show_add_item_window(self):
+        toast = SelectItemNotification(self)
         toast.show_notification()

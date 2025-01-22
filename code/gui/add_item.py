@@ -1,17 +1,14 @@
-from PySide6.QtCore import QTimer, Qt
-from PySide6.QtWidgets import (
-    QApplication, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar
-)
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QLabel, QPushButton, QHBoxLayout, QApplication
 from pandas import Series
+from PySide6.QtCore import Qt, QTimer
 
 class AddedItemNotification(QWidget):
     def __init__(self, parent, item: Series):
         super().__init__(parent)
+        self.parent = parent
         self.item = item
         # Set window flags to make it behave like a toast
-        self.setWindowFlags(
-            Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
-        )
+        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
 
         # Apply styles
@@ -107,6 +104,7 @@ class AddedItemNotification(QWidget):
         from state.application_state import ApplicationState
         ApplicationState().current_session.remove_item(self.item)
         self.close()
+        self.parent.manual_add_item_worker.notify_show_add_item_window()
 
     def update_progress(self):
         """Update the progress bar and close the toast when time is up."""
@@ -126,7 +124,7 @@ class AddedItemNotification(QWidget):
         # Position it at the top-right corner (x = screen width - widget width, y = 0)
         widget_width = self.size().width()
         widget_height = self.size().height()
-        x = screen_geometry.width() - widget_width - 200  # 200px padding from the right edge
+        x = screen_geometry.width() - widget_width - 150 
         y = 20  # 20px padding from the top edge
 
         self.move(x, y)
