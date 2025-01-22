@@ -4,9 +4,10 @@ from gui.session_tab import SessionTab
 from gui.items_tab import ItemsTab
 from gui.game_tab import GameTab
 from gui.main_tab import MainTab
-from gui.add_item import AddedItemNotification
+from gui.added_item import AddedItemNotification
 from gui.select_item import SelectItemNotification
 from gui.css import get_application_stylesheet
+from event.event_manager import EventManager, EventType
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,9 @@ class ItemAddWorker(QObject):
 class ManualAddItemWorker(QObject):
     notify = Signal()
 
+    def notify_show_add_item_window_from_event(self, _):
+        self.notify.emit()
+
     def notify_show_add_item_window(self):
         self.notify.emit()
 
@@ -28,7 +32,6 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
         self.worker_thread = QThread()
         self.item_add_worker = ItemAddWorker()
         self.item_add_worker.moveToThread(self.worker_thread)
@@ -37,6 +40,8 @@ class MainWindow(QMainWindow):
         self.manual_add_item_worker.moveToThread(self.worker_thread)
         self.manual_add_item_worker.notify.connect(self.show_add_item_window)
         self.worker_thread.start()
+
+        EventManager().subscribe(EventType.REQUEST_ADD_ITEM, self.manual_add_item_worker.notify_show_add_item_window_from_event)
 
         # Set window properties
         self.setWindowTitle("D2R Assistant")
