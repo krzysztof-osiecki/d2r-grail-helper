@@ -40,7 +40,7 @@ def take_screenshot():
     screenshot_path = RUNTIME_PATH + f"screenshots/screenshot{screenshot_loop_counter}.png"
     screenshot.save(screenshot_path)
     screenshot_loop_counter = (screenshot_loop_counter + 1) % screenshot_max_count
-    recognize_location(screenshot)
+    recognize_location(screenshot, screenshot_path)
     logger.debug(f"screenshot taken successfully: {screenshot_path}")
 
 

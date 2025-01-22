@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from fuzzywuzzy import fuzz
+from recognition.find_box import find_box_in_target
 
 logger = logging.getLogger(__name__)
 
@@ -72,44 +73,11 @@ def find_item_box(screenshot_path, show_result_image = False):
     global CROPPED_ITEM_INDEX, MAX_CROPPED_ITEMS
     for item in HOVER_ITEM_IMAGE_NAME:
         # Load the source image and template image
-        source_image = cv2.imread(screenshot_path)  # The larger image
-        template_image = cv2.imread(f"{DATA_PATH}hover_item_footers/{item}")  # The smaller image you're looking for
-        # Convert images to grayscale (optional, but recommended for template matching)
-        gray_source = cv2.cvtColor(source_image, cv2.COLOR_BGR2GRAY)
-        gray_template = cv2.cvtColor(template_image, cv2.COLOR_BGR2GRAY)
+        template_image = f"{DATA_PATH}hover_item_footers/{item}"  # The smaller image you're looking for
+        one_location, locations, gray_source, gray_template, source_image = find_box_in_target(template_image, screenshot_path)
 
-        # Perform template matching using cv2.matchTemplate()
-        result = cv2.matchTemplate(gray_source, gray_template, cv2.TM_CCOEFF_NORMED)
-        # Initial threshold
-        threshold = 0.8
-        threshold_increment = 0.05  # Increment for increasing the threshold
-        max_iterations = 10  # Maximum number of threshold increases to avoid infinite loop
-
-        # Start with the initial threshold
-        iteration = 0
-        locations = []
-
-        # Increase the threshold until only one match is found
-        while len(locations) != 1 and iteration < max_iterations:
-            # Find locations where the match score is greater than or equal to the threshold
-            locations = np.where(result >= threshold)
-
-            if len(locations) < 1:
-                # nothing found
-                break
-
-            # Check if we found more than one match
-            if len(locations[0]) > 1:
-                # Increase the threshold
-                threshold += threshold_increment
-                iteration += 1
-            else:
-                # If exactly one match is found, break the loop
-                break
-
-        # Print result
-        if len(locations[0]) == 1:
-            print(f"Exactly one match found with threshold {threshold:.2f}")
+        # extend box
+        if one_location:
             top_left = (locations[1][0], locations[0][0])  # Get top-left corner of the match
             bottom_right = (top_left[0] + gray_template.shape[1], top_left[1] + gray_template.shape[0])
 
@@ -134,7 +102,7 @@ def find_item_box(screenshot_path, show_result_image = False):
         else:
             logger.info(f"Unable to find exactly one match with item {item}.")
         
-        return False, None
+    return False, None
 
 def preprocess_item_name(input_str):
     # Remove everything after and including the first bracket, including the space before it
