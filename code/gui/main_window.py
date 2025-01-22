@@ -2,8 +2,8 @@ from PySide6.QtWidgets import QWidget, QMainWindow, QLabel, QTabWidget, QVBoxLay
 from PySide6.QtCore import Qt, QTimer, QPoint, QThread, QTimer, QObject, Signal
 from gui.session_tab import SessionTab
 from gui.items_tab import ItemsTab
-from gui.game_tab import GameTab
 from gui.main_tab import MainTab
+from gui.stats_tab import StatsTab
 from gui.added_item import AddedItemNotification
 from gui.select_item import SelectItemNotification
 from gui.css import get_application_stylesheet
@@ -60,15 +60,15 @@ class MainWindow(QMainWindow):
         self.init_timer()
 
         self.main_tab = MainTab()
-        self.game_tab = GameTab()
         self.items_tab = ItemsTab(self)
         self.session_tab = SessionTab()
+        self.stats_tab = StatsTab()
 
         tab_widget = QTabWidget(self)
         tab_widget.addTab(self.main_tab, "Main")
-        tab_widget.addTab(self.game_tab, "Game")
         tab_widget.addTab(self.items_tab, "Items")
         tab_widget.addTab(self.session_tab, "Session")
+        tab_widget.addTab(self.stats_tab, "Stats")
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(tab_widget)
@@ -92,7 +92,6 @@ class MainWindow(QMainWindow):
 
     def on_update_timer(self): 
         self.main_tab.update()
-        self.game_tab.update()
 
     def mousePressEvent(self, event):
         """Start dragging when the left mouse button is pressed"""
