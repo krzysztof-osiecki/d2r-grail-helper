@@ -4,9 +4,10 @@ Item search is based on this resolution, to make it work with different, item se
 
 Current features:
 - item recognition and adding view in-game shortcut (not perfect)
+- option to manualy add item from list
 - game counting and in-game timer
 - session timer
-- recognized item popup (allowring removal of badly recognized)
+- recognized item popup (allowing removal of badly recognized)
 - profiles with saved items and games counted
 
 Expected features:
@@ -17,7 +18,7 @@ I don't normaly work with python, started with idea of using pipenv but didn't w
 Would like to make pipenv work at some point.
 
 TODO and TOTHINK:
-- on incorrect recognition add option to choose manualy from list
+
 - rune recognition (check for particular letters swaps like het instead of hel, may add a few swaps to check)
 - next show and calculate stats
 - check if screenshot can ignore assistant window (see comment in screenshot.py method screenshot_window)
