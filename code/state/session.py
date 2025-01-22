@@ -70,7 +70,9 @@ class Session():
         from state.application_state import ApplicationState
         item_library = ApplicationState().item_library
         # Convert the list of dictionaries back into Series objects
-        items_saved = [item_library[item_library["Item" == item]] for item in data["items_saved"]]
+        items = data["items_saved"]
+        filtered_df = item_library[item_library['Item'].isin(items)]
+        items_saved = filtered_df.set_index('Item')['Rarity'].to_dict()
 
         # Return a new Session object with the deserialized data
         return cls(
@@ -123,10 +125,14 @@ def _save_items():
     os.makedirs(profile_path, exist_ok=True)
     saved_files_path = f"{profile_path}saved_items.csv"
     
-    # Check if the file exists and whether it's empty
-    if os.path.exists(saved_files_path) and os.stat(saved_files_path).st_size > 0:
-        # Append to the file without writing the header
-        df.to_csv(saved_files_path, mode='a', header=False, index=False)
-    else:
-        # If the file is empty or doesn't exist, write with the header
+    if os.path.exists(saved_files_path):
+        with open(saved_files_path, 'r') as file:
+            file_contents = file.read().strip()  # Remove leading/trailing whitespace
+            if file_contents:  # If the file contains non-whitespace text
+                df.to_csv(saved_files_path, mode='a', header=False, index=False)
+            else:
+                df.to_csv(saved_files_path, mode='w', header=True, index=False)
+    else :
         df.to_csv(saved_files_path, mode='w', header=True, index=False)
+    
+        
