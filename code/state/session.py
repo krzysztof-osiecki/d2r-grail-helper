@@ -43,7 +43,7 @@ class Session():
     def remove_item(self, item, manual = True):
         # there will be a problem for multiple of same item, ditch the Series here maybe?
         self._items_saved.remove(item)
-        if self._items_debug_data[self.string_for_item(item)] != None:
+        if self.string_for_item(item) in self._items_debug_data != None:
             screenshot_path, text_lines = self._items_debug_data[self.string_for_item(item)]
             save_item_debug_data(screenshot_path, text_lines)
 
