@@ -2,6 +2,7 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from typing import List
 from pandas import Series
+from event.event_manager import EventManager, EventType
 from constants.contants import USER_PATH, DEFAULT_PROFILE, DEBUG_PATH
 from utility.timer import Timer
 import pandas as pd
@@ -120,6 +121,7 @@ def add_item(entry):
 
     # Check if the entry exists in the DataFrame
     match = (df["Item"] == entry["Item"]) & (df["Rarity"] == entry["Rarity"])
+    new_item = False
     if match.any():
         # If the entry exists, increment the count
         df.loc[match, "Count"] += 1
@@ -127,9 +129,12 @@ def add_item(entry):
         # If the entry does not exist, add it with a count of 1
         new_row = {"Item": entry["Item"], "Rarity": entry["Rarity"], "Count": 1}
         df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+        EventManager().fire(EventType.BRAND_NEW_ITEM, entry)
+
 
     # Save the updated DataFrame back to the CSV file
     df.to_csv(file_path, index=False)
+    return new_item
 
 def remove_item(entry):
     """

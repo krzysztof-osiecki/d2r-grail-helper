@@ -1,6 +1,7 @@
 This is going to be D2R assistant for Holy Grail, and in general runs monitoring.
 Currently the app expects the game to be run in 1440p, so the resolution is 2560x1440.
-Item search is based on this resolution, to make it work with different, item search values would need to be adjusted, or simply written much better than current (quite stupid) approach.
+Location search is based on this resolution, to make it work with different, location search values would need to be adjusted, or simply written much better than current (quite stupid) approach.
+Some adjustment would probably be needed for item search aswell
 
 Current features:
 - item recognition and adding view in-game shortcut (not perfect)

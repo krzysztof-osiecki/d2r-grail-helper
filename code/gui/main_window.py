@@ -5,6 +5,7 @@ from gui.main_tab import MainTab
 from gui.stats_tab import StatsTab
 from gui.added_item import AddedItemNotification
 from gui.select_item import SelectItemNotification
+from gui.brand_new_item import BrandNewItemNotification
 from gui.css import get_application_stylesheet
 from event.event_manager import EventManager, EventType
 import logging
@@ -26,6 +27,12 @@ class ManualAddItemWorker(QObject):
     def notify_show_add_item_window(self):
         self.notify.emit()
 
+class BrandNewItemWorker(QObject):
+    notify = Signal(dict)
+
+    def notify_brand_new_item(self, entry):
+        self.notify.emit(entry)
+
 class MainWindow(QMainWindow):
     label: QLabel
 
@@ -38,9 +45,13 @@ class MainWindow(QMainWindow):
         self.manual_add_item_worker = ManualAddItemWorker()
         self.manual_add_item_worker.moveToThread(self.worker_thread)
         self.manual_add_item_worker.notify.connect(self.show_add_item_window)
+        self.brand_new_item_worker = BrandNewItemWorker()
+        self.brand_new_item_worker.moveToThread(self.worker_thread)
+        self.brand_new_item_worker.notify.connect(self.show_brand_new_item_toast)
         self.worker_thread.start()
 
         EventManager().subscribe(EventType.REQUEST_ADD_ITEM, self.manual_add_item_worker.notify_show_add_item_window_from_event)
+        EventManager().subscribe(EventType.BRAND_NEW_ITEM, self.brand_new_item_worker.notify_brand_new_item)
 
         # Set window properties
         self.setWindowTitle("D2R Assistant")
@@ -136,6 +147,10 @@ class MainWindow(QMainWindow):
 
     def show_item_added_toast(self, saved_item):
         toast = AddedItemNotification(self, saved_item)
+        toast.show_notification()
+
+    def show_brand_new_item_toast(self, saved_item):
+        toast = BrandNewItemNotification(self, saved_item)
         toast.show_notification()
 
     def show_add_item_window(self):

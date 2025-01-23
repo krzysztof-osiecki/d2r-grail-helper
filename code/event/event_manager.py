@@ -1,6 +1,7 @@
 from enum import Enum
 class EventType(str, Enum):
     REQUEST_ADD_ITEM = "REQUEST_ADD_ITEM"
+    BRAND_NEW_ITEM = "BRAND_NEW_ITEM"
 
 class EventManager:
     _instance = None
@@ -16,7 +17,7 @@ class EventManager:
         """Initialize the application state."""
         if not hasattr(self, 'initialized'):  # Initialize only once
             self.initialized = True
-            self._observers = {EventType.REQUEST_ADD_ITEM: []}
+            self._observers = {EventType.REQUEST_ADD_ITEM: [], EventType.BRAND_NEW_ITEM: []}
 
     def subscribe(self, event_type: EventType, callback):
         self._observers[event_type].append(callback)
