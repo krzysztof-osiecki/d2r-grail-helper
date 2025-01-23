@@ -9,24 +9,23 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Profile():
     profile_name: str = DEFAULT_PROFILE
-    number_of_sessions: int = 0
 
     def to_dict(self):
     # Convert to a dictionary with serialized data
         return {
-            "profile_name": self.profile_name,
-            "number_of_sessions": self.number_of_sessions
+            "profile_name": self.profile_name
         }
     
     @classmethod
     def from_dict(cls, data):
         return cls(
-            profile_name=data["profile_name"],
-            number_of_sessions=data["number_of_sessions"]+1
+            profile_name=data["profile_name"]
         )
     
     def save_profile(self):
-        USER_PROFILE_PATH = f"{USER_PATH}{self.profile_name}/profile.json"
+        USER_PROFILE_DIR =f"{USER_PATH}{self.profile_name}"
+        os.makedirs(USER_PROFILE_DIR, exist_ok=True)
+        USER_PROFILE_PATH = f"{USER_PROFILE_DIR}/profile.json"
         # Open the file in write mode (it will be created if it doesn't exist)
         with open(USER_PROFILE_PATH, "w") as file:
             # Serialize the object to a JSON string and write to the file
@@ -41,7 +40,7 @@ def load_profile(profile_name):
     USER_PROFILE_PATH = f"{USER_PATH}{profile_name}/profile.json"
     if not os.path.exists(USER_PROFILE_PATH):
         logger.debug("No last session file found, returning a default session.")
-        return Profile(profile_name=profile_name, number_of_sessions=0)  # Return a default Session if the file is not found
+        return Profile(profile_name=profile_name)  # Return a default Session if the file is not found
     try:
         with open(USER_PROFILE_PATH, "r") as file:
             data = json.load(file)  # Load the JSON data from the file

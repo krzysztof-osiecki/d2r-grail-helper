@@ -1,7 +1,6 @@
-from PySide6.QtWidgets import QWidget, QMainWindow, QLabel, QTabWidget, QVBoxLayout, QApplication
+from PySide6.QtWidgets import QWidget, QMainWindow, QLabel, QTabWidget, QVBoxLayout, QApplication, QPushButton
 from PySide6.QtCore import Qt, QTimer, QPoint, QThread, QTimer, QObject, Signal
-from gui.session_tab import SessionTab
-from gui.items_tab import ItemsTab
+from gui.profile_session_tab import ProfileSessionTab
 from gui.main_tab import MainTab
 from gui.stats_tab import StatsTab
 from gui.added_item import AddedItemNotification
@@ -59,15 +58,33 @@ class MainWindow(QMainWindow):
 
         self.init_timer()
 
+        # Close button
+        self.close_button = QPushButton("✖", self)
+        self.close_button.setStyleSheet("""
+            QPushButton {
+                color: red;
+                background-color: transparent;                                      
+                border: none;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                color: darkred;
+            }
+        """)
+        self.close_button.setCursor(Qt.PointingHandCursor)
+        self.close_button.setFixedSize(50, 50)  # Set a fixed size for the button
+        self.close_button.move(self.width() - self.close_button.width() + 10, 0)
+        # Connect the button to the close function
+        self.close_button.clicked.connect(self.close)
+
+        # tabs
         self.main_tab = MainTab()
-        self.items_tab = ItemsTab(self)
-        self.session_tab = SessionTab()
+        self.items_tab = ProfileSessionTab(self)
         self.stats_tab = StatsTab()
 
         tab_widget = QTabWidget(self)
         tab_widget.addTab(self.main_tab, "Main")
-        tab_widget.addTab(self.items_tab, "Items")
-        tab_widget.addTab(self.session_tab, "Session")
+        tab_widget.addTab(self.items_tab, "Profile/Session")
         tab_widget.addTab(self.stats_tab, "Stats")
 
         main_layout = QVBoxLayout()
@@ -79,7 +96,7 @@ class MainWindow(QMainWindow):
         screen_geometry = QApplication.primaryScreen().availableGeometry()
 
         # Calculate the bottom-left corner position
-        x_position = screen_geometry.left()  # Left edge of the screen
+        x_position = screen_geometry.left() + 2  # Left edge of the screen
         y_position = screen_geometry.bottom() - self.height()  # Bottom edge minus window height
 
         # Move the window to the bottom-left corner
@@ -92,6 +109,12 @@ class MainWindow(QMainWindow):
 
     def on_update_timer(self): 
         self.main_tab.update()
+
+    def resizeEvent(self, event):
+        """Reposition the close button on window resize."""
+        super().resizeEvent(event)
+        # Position the button at the top-right corner, with 10px padding from the edge
+        self.close_button.move(self.width() - self.close_button.width() + 10, 0)
 
     def mousePressEvent(self, event):
         """Start dragging when the left mouse button is pressed"""

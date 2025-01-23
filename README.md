@@ -9,10 +9,7 @@ Current features:
 - session timer
 - recognized item popup (allowing removal of badly recognized)
 - profiles with saved items and games counted
-
-Expected features:
 - monitoring grail collection (stats)
-- manual editing of items
 
 I don't normaly work with python, started with idea of using pipenv but didn't work for one of the libraries, so im just pip installing as i go.
 Would like to make pipenv work at some point.
@@ -20,5 +17,4 @@ Would like to make pipenv work at some point.
 TODO and TOTHINK:
 
 - rune recognition (check for particular letters swaps like het instead of hel, may add a few swaps to check)
-- next show and calculate stats
 - check if screenshot can ignore assistant window (see comment in screenshot.py method screenshot_window)

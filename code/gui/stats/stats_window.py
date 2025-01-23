@@ -18,8 +18,8 @@ class StatsWindow(QWidget):
         application_state = ApplicationState()
         self.setWindowTitle(f"Grail stats for: {application_state.current_profile.profile_name}")
 
-        self.stats_tab = GrailStatsTab()
-        self.items_tab = GrailItemsTab(saved_items_data)
+        self.stats_tab = GrailStatsTab(saved_items_data)
+        self.items_tab = GrailItemsTab(saved_items_data, self)
 
         tab_widget = QTabWidget(self)
         tab_widget.addTab(self.stats_tab, "Stats")
@@ -29,14 +29,18 @@ class StatsWindow(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.addWidget(tab_widget)
+        self.resize(400, 400)
 
     def load_items_for_profile(self):
         application_state = ApplicationState()
         profile_path = f"{USER_PATH}{application_state.current_profile.profile_name}/"
         os.makedirs(profile_path, exist_ok=True)
         saved_files_path = f"{profile_path}saved_items.csv"
-        saved_items_data = pd.read_csv(saved_files_path)
-        return saved_items_data
+        try:
+            return pd.read_csv(saved_files_path)
+        except FileNotFoundError:
+        # If the file doesn't exist, create an empty DataFrame with required columns
+            return pd.DataFrame(columns=["Item", "Rarity", "Count"])
 
     def position_window(self):
         # Get the screen's available geometry (the area without taskbars, etc.)
@@ -53,3 +57,9 @@ class StatsWindow(QWidget):
         self.move(screen_center - window_rect.center())
         self.show()
 
+    def update(self):
+        item_data = self.load_items_for_profile()
+        self.stats_tab.saved_items_data = item_data
+        self.stats_tab.update()
+        self.items_tab.saved_items_data = item_data
+        self.items_tab.update()

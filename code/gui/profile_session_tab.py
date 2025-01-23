@@ -4,16 +4,17 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QPushButton,
-    QHBoxLayout,
+    QLineEdit,
     QAbstractItemView,
     QLabel
 )
 from PySide6.QtCore import Qt
 from functools import partial
 from state.application_state import ApplicationState
+from state.profile import handle_save_profile
 
 
-class ItemsTab(QWidget):
+class ProfileSessionTab(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -25,7 +26,18 @@ class ItemsTab(QWidget):
         self.items_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.current_session.subscribe_item_change(self.update_items_table)
 
-        grid_layout.addWidget(self.items_table)
+        self.profile_name_input = QLineEdit(self)
+        self.profile_name_input.setFixedHeight(30)
+        self.profile_name_input.setPlaceholderText("enter user name...")
+        self.profile_name_input.setText(ApplicationState().current_profile.profile_name)
+        self.profile_name_input.setAlignment(Qt.AlignCenter)  
+
+        self.create_profile_button = QPushButton("Set profile")
+        self.create_profile_button.clicked.connect(self.handle_create_profile_button)
+
+        grid_layout.addWidget(self.profile_name_input, 0, 0, 1, 2)
+        grid_layout.addWidget(self.create_profile_button, 0, 2, 1, 1)
+        grid_layout.addWidget(self.items_table, 1, 0, 1, 3)
         self.setLayout(grid_layout)
 
     def update_items_table(self, item, operation, manual):
@@ -33,12 +45,12 @@ class ItemsTab(QWidget):
             self.main_window.item_add_worker.notify_with_last_added_item(item)
 
         # Set up rows and columns
-        row_count = len(self.current_session.items_saved)
+        row_count = len(self.current_session.items_in_session)
         self.items_table.setRowCount(row_count)  # Set number of rows
 
         if row_count > 0:
             # Add the "Actions" column at the beginning
-            col_headers = [""] + list(self.current_session.items_saved[0].keys())
+            col_headers = [""] + list(self.current_session.items_in_session[0].keys())
             self.items_table.setColumnCount(len(col_headers))  # Add one column for actions
             self.items_table.setHorizontalHeaderLabels(col_headers)
 
@@ -49,7 +61,7 @@ class ItemsTab(QWidget):
         vertical_header.setVisible(False)
 
         # Populate the table with data and add buttons
-        for row_index, series in enumerate(self.current_session.items_saved):
+        for row_index, series in enumerate(self.current_session.items_in_session):
             # Add the remove button to the "Actions" column (first column)
             button = QPushButton("X")
             # button.setMaximumWidth(20)
@@ -79,6 +91,10 @@ class ItemsTab(QWidget):
 
     def remove_row(self, row_index):
         # Remove the item from the ApplicationState
-        if 0 <= row_index < len(self.current_session.items_saved):
-            removed_item = self.current_session.items_saved[row_index]
+        if 0 <= row_index < len(self.current_session.items_in_session):
+            removed_item = self.current_session.items_in_session[row_index]
             ApplicationState().current_session.remove_item(removed_item)
+
+    def handle_create_profile_button(self):
+        ApplicationState().current_profile.profile_name = self.profile_name_input.text()
+        handle_save_profile()
