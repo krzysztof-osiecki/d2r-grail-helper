@@ -25,7 +25,6 @@ class Session():
     seconds_in_game: int = 0
     seconds_out_of_game: int = 0
     _items_in_session: List[dict] = field(default_factory=list, repr=False)
-    _item_change_observers = []
     _items_debug_data = {}
 
     @property
@@ -40,19 +39,17 @@ class Session():
         if item_debug_data:
             self._items_debug_data[self.string_for_item(item)] = item_debug_data
         add_item(item)
-        for callback in self._item_change_observers:
-            callback(item, "ADDED", manual)
+        item["Manual"] = manual
+        EventManager().fire(EventType.ITEM_ADDED, item)
 
-    def remove_item(self, item, manual = True):
-        # there will be a problem for multiple of same item, ditch the Series here maybe?
+    def remove_item(self, item):
         if item in self._items_in_session:
             self._items_in_session.remove(item)
         if self.string_for_item(item) in self._items_debug_data != None:
             screenshot_path, text_lines = self._items_debug_data[self.string_for_item(item)]
             save_item_debug_data(screenshot_path, text_lines)
         remove_item(item)
-        for callback in self._item_change_observers:
-            callback(item, "REMOVED", manual)
+        EventManager().fire(EventType.ITEM_REMOVED, item)
 
     def subscribe_item_change(self, callback):
         self._item_change_observers.append(callback)

@@ -15,16 +15,14 @@ from state.profile import handle_save_profile
 
 
 class ProfileSessionTab(QWidget):
-    def __init__(self, main_window):
+    def __init__(self):
         super().__init__()
-        self.main_window = main_window
         self.current_session = ApplicationState().current_session
 
         grid_layout = QGridLayout(self)
         self.items_table = QTableWidget()
         
         self.items_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.current_session.subscribe_item_change(self.update_items_table)
 
         self.profile_name_input = QLineEdit(self)
         self.profile_name_input.setFixedHeight(30)
@@ -40,9 +38,7 @@ class ProfileSessionTab(QWidget):
         grid_layout.addWidget(self.items_table, 1, 0, 1, 3)
         self.setLayout(grid_layout)
 
-    def update_items_table(self, item, operation, manual):
-        if operation == "ADDED" and not manual:
-            self.main_window.item_add_worker.notify_with_last_added_item(item)
+    def update_items_table(self):
 
         # Set up rows and columns
         row_count = len(self.current_session.items_in_session)

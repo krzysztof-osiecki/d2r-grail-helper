@@ -12,6 +12,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class ItemRemovedWorker(QObject):
+    notify = Signal(dict)
+
+    def notify_item_removed(self, item):
+        self.notify.emit(item)
+
 class ItemAddWorker(QObject):
     notify = Signal(dict)
 
@@ -39,6 +45,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.worker_thread = QThread()
+        self.item_removed_worker = ItemRemovedWorker()
+        self.item_removed_worker.moveToThread(self.worker_thread)
+        self.item_removed_worker.notify.connect(self.update_items_table)
         self.item_add_worker = ItemAddWorker()
         self.item_add_worker.moveToThread(self.worker_thread)
         self.item_add_worker.notify.connect(self.show_item_added_toast)
@@ -50,6 +59,8 @@ class MainWindow(QMainWindow):
         self.brand_new_item_worker.notify.connect(self.show_brand_new_item_toast)
         self.worker_thread.start()
 
+        EventManager().subscribe(EventType.ITEM_REMOVED, self.item_removed_worker.notify_item_removed)
+        EventManager().subscribe(EventType.ITEM_ADDED, self.item_add_worker.notify_with_last_added_item)
         EventManager().subscribe(EventType.REQUEST_ADD_ITEM, self.manual_add_item_worker.notify_show_add_item_window_from_event)
         EventManager().subscribe(EventType.BRAND_NEW_ITEM, self.brand_new_item_worker.notify_brand_new_item)
 
@@ -90,7 +101,7 @@ class MainWindow(QMainWindow):
 
         # tabs
         self.main_tab = MainTab()
-        self.items_tab = ProfileSessionTab(self)
+        self.items_tab = ProfileSessionTab()
         self.stats_tab = StatsTab()
 
         tab_widget = QTabWidget(self)
@@ -145,9 +156,14 @@ class MainWindow(QMainWindow):
         if event.button() == Qt.LeftButton:
             self._drag_active = False
 
+    def update_items_table(self, _):
+        self.items_tab.update_items_table()
+
     def show_item_added_toast(self, saved_item):
-        toast = AddedItemNotification(self, saved_item)
-        toast.show_notification()
+        self.items_tab.update_items_table()
+        if saved_item["Manual"] == False:
+            toast = AddedItemNotification(self, saved_item)
+            toast.show_notification()
 
     def show_brand_new_item_toast(self, saved_item):
         toast = BrandNewItemNotification(self, saved_item)
