@@ -49,7 +49,7 @@ class BrandNewItemNotification(QWidget):
 
 
         # Auto-close the notification after a timeout
-        self.timeout = 1000  # Timeout duration in milliseconds
+        self.timeout = 5000  # Timeout duration in milliseconds
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_progress)
         self.timer.start(100) 
@@ -74,7 +74,7 @@ class BrandNewItemNotification(QWidget):
         # Position it at the top-right corner (x = screen width - widget width, y = 0)
         widget_width = self.size().width()
         widget_height = self.size().height()
-        x = screen_geometry.width() - widget_width - 150 
+        x = screen_geometry.width() - widget_width - 380 
         y = 20  # 20px padding from the top edge
 
         self.move(x, y)
