@@ -3,6 +3,8 @@ Currently the app expects the game to be run in 1440p, so the resolution is 2560
 Location search is based on this resolution, to make it work with different, location search values would need to be adjusted, or simply written much better than current (quite stupid) approach.
 Some adjustment would probably be needed for item search aswell
 
+I wrote what i needed and got kindof bored, but if you like it and would like some functionality added feel free to let me know.
+
 Current features:
 - item recognition and adding view in-game shortcut (not perfect)
 - option to manualy add item from list
