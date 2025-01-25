@@ -101,7 +101,7 @@ def screenshot_window():
 def screenshot_loop():
     while True:
         take_screenshot()
-        time.sleep(1)  # Wait for 1 second
+        time.sleep(0.5) 
 
 def init_screenshot_loop():
     task_thread = threading.Thread(target=screenshot_loop, daemon=True)  # Set as daemon so it ends with the main program
